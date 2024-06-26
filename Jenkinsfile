@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('SCM Checkout') {
             when {
-                expression { return !params.RUN_STAGES }
+                expression { return params.RUN_STAGES }
             }
             steps {
                 script {
@@ -28,7 +28,7 @@ pipeline {
 
         stage('Docker Build') {
             when {
-                expression { return !params.RUN_STAGES }
+                expression { return params.RUN_STAGES }
             }
             steps {
                 script {
@@ -41,7 +41,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             when {
-                expression { return !params.SCAN }
+                expression { return params.SCAN }
             }
             environment {
                 scannerHome = tool 'sonarqube scanner'
@@ -55,7 +55,7 @@ pipeline {
 
         stage('Run Container and List Files') {
             when {
-                expression { return !params.RUN_STAGES }
+                expression { return params.RUN_STAGES }
             }
             steps {
                 script {
