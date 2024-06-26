@@ -15,6 +15,7 @@ pipeline {
             steps {
                 script {
                     git branch: "${params.BRANCH_NAME}", url: 'https://github.com/rudiori8/vault.git', credentialsId: 'personal-git'
+                    sh 'ls -l'
                 }
             }
         }
@@ -34,7 +35,7 @@ pipeline {
                 scannerHome = tool 'sonarqube scanner'
             }
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('sonarqube server') {
                     sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
