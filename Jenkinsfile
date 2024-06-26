@@ -72,7 +72,7 @@ pipeline {
             }
             steps {
                 script {
-                    def containerIds = sh(script: "docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID}", returnStdout: false).trim()
+                    def containerIds = sh(script: "docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID}", returnStdout: true)?.trim()
                     if (containerIds) {
                         sh "docker rm -f ${containerIds}"
                     } else {
