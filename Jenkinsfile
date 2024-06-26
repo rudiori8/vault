@@ -3,7 +3,7 @@ pipeline {
 
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
-        credentials(name: 'dockerhub', description: 'DockerHub credentials')
+        credentials(name: 'dockerhub', defaultValue: 'dockerhub', description: 'DockerHub credentials')
         booleanParam(name: 'RUN_STAGES', defaultValue: false, description: 'running the stage')
         booleanParam(name: 'SCAN', defaultValue: false, description: 'sonarQ scan')
         booleanParam(name: 'DELETE_CONTAINER', defaultValue: false, description: 'Delete container after running')
