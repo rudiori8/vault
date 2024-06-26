@@ -7,6 +7,7 @@ pipeline {
         booleanParam(name: 'RUN_STAGES', defaultValue: false, description: 'running the stage')
         booleanParam(name: 'SCAN', defaultValue: false, description: 'sonarQ scan')
         booleanParam(name: 'DELETE_CONTAINER', defaultValue: false, description: 'Delete container after running')
+        string(name: 'HOST_PORT', defaultValue: '80', description: 'Port to map to the host')
     }
 
     options {
@@ -59,9 +60,22 @@ pipeline {
             }
             steps {
                 script {
-                    docker.image("rudiori/sonar-test:${env.BUILD_ID}").inside {
+                    docker.image("rudiori/sonar-test:${env.BUILD_ID}").inside("-p ${params.HOST_PORT}:80") {
                         sh 'ls -l'
                     }
+                }
+            }
+        }
+
+        stage('Delete Previous Image') {
+            when {
+                expression { return params.DELETE_CONTAINER }
+            }
+            steps {
+                script {
+                    def previousBuildId = env.BUILD_ID.toInteger() - 1
+                    def imageTag = "${previousBuildId}"
+                    sh "docker rmi rudiori/sonar-test:${imageTag} || echo 'Previous image not found, skipping deletion.'"
                 }
             }
         }
