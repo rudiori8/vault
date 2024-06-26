@@ -72,7 +72,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker rm -f $(docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID})"
+                    sh "docker rm -f \$(docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID})"
                 }
             }
         }
