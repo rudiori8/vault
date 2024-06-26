@@ -4,6 +4,9 @@ pipeline {
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
         credentials(name: 'dockerhub', description: 'DockerHub credentials')
+        booleanParam(name: 'RUN_STAGES', defaultValue: true, description: 'running the stage')
+        booleanParam(name: 'SCAN', defaultValue: true, description: 'sonarQ scan')
+        booleanParam(name: 'DELETE_CONTAINER', defaultValue: true, description: 'Delete container after running')
     }
 
     options {
@@ -12,6 +15,9 @@ pipeline {
 
     stages {
         stage('SCM Checkout') {
+            when {
+                expression { return !params.RUN_STAGES }
+            }
             steps {
                 script {
                     git branch: "${params.BRANCH_NAME}", url: 'https://github.com/rudiori8/vault.git', credentialsId: 'personal-git'
@@ -21,6 +27,9 @@ pipeline {
         }
 
         stage('Docker Build') {
+            when {
+                expression { return !params.RUN_STAGES }
+            }
             steps {
                 script {
                     docker.withRegistry('', "${params.dockerhub}") {
@@ -31,6 +40,9 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
+            when {
+                expression { return !params.SCAN }
+            }
             environment {
                 scannerHome = tool 'sonarqube scanner'
             }
@@ -42,6 +54,9 @@ pipeline {
         }
 
         stage('Run Container and List Files') {
+            when {
+                expression { return !params.RUN_STAGES }
+            }
             steps {
                 script {
                     docker.image("rudiori/sonar-test:${env.BUILD_ID}").inside {
@@ -52,9 +67,12 @@ pipeline {
         }
 
         stage('Delete Container') {
+            when {
+                expression { return params.RUN_STAGES }
+            }
             steps {
                 script {
-                    sh "docker rm -f \$(docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID})"
+                    sh "docker rm -f $(docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID})"
                 }
             }
         }
