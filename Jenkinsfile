@@ -4,9 +4,9 @@ pipeline {
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
         credentials(name: 'dockerhub', description: 'DockerHub credentials')
-        booleanParam(name: 'RUN_STAGES', defaultValue: true, description: 'running the stage')
-        booleanParam(name: 'SCAN', defaultValue: true, description: 'sonarQ scan')
-        booleanParam(name: 'DELETE_CONTAINER', defaultValue: true, description: 'Delete container after running')
+        booleanParam(name: 'RUN_STAGES', defaultValue: false, description: 'running the stage')
+        booleanParam(name: 'SCAN', defaultValue: false, description: 'sonarQ scan')
+        booleanParam(name: 'DELETE_CONTAINER', defaultValue: false, description: 'Delete container after running')
     }
 
     options {
@@ -68,11 +68,16 @@ pipeline {
 
         stage('Delete Container') {
             when {
-                expression { return params.RUN_STAGES }
+                expression { return params.DELETE_CONTAINER }
             }
             steps {
                 script {
-                    sh "docker rm -f \$(docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID})"
+                    def containerIds = sh(script: "docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID}", returnStdout: false).trim()
+                    if (containerIds) {
+                        sh "docker rm -f ${containerIds}"
+                    } else {
+                        echo "No containers found to remove."
+                    }
                 }
             }
         }

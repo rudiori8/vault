@@ -21,8 +21,6 @@ ADD  . .
 #expose the container
 EXPOSE ${port}
 
-CMD [
-
 
 
 
