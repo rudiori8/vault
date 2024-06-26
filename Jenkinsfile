@@ -50,5 +50,13 @@ pipeline {
                 }
             }
         }
+
+        stage('Delete Container') {
+            steps {
+                script {
+                    sh "docker rm -f \$(docker ps -a -q --filter ancestor=rudiori/sonar-test:${env.BUILD_ID})"
+                }
+            }
+        }
     }
 }
